@@ -1,0 +1,58 @@
+.TH MTL "1" "2024\-12\-13" "mtl payroll" "Generated Python Manual"
+.SH NAME
+mtl
+.SH SYNOPSIS
+.B mtl
+[-h] [-t TRUCKERS] [-d DATE] [-l LOADS] [-p] [-e .env] [-j args.json]
+.SH DESCRIPTION
+This cli is used for making payroll calculations the                                                  <truckers> is required arg
+
+.SH OPTIONS
+.TP
+\fB\-t\fR \fI\,TRUCKERS\/\fR, \fB\-\-truckers\fR \fI\,TRUCKERS\/\fR
+Comma separated list of drivers:sheetname with the sheet parsed as well:
+driver_percentage
+
+.TP
+\fB\-d\fR \fI\,DATE\/\fR, \fB\-\-date\fR \fI\,DATE\/\fR
+The pay date (should be a friday)
+
+.TP
+\fB\-l\fR \fI\,LOADS\/\fR, \fB\-\-loads\fR \fI\,LOADS\/\fR
+The name of the sheet with all the trips default is Trip Sheet
+
+.TP
+\fB\-p\fR, \fB\-\-prompt\fR
+Prompt for the required variables interactively
+
+.TP
+\fB\-e\fR \fI\,.env\/\fR, \fB\-\-environment\fR \fI\,.env\/\fR
+Use an environment file to parse required arguments
+
+.TP
+\fB\-j\fR \fI\,args.json\/\fR, \fB\-\-json\fR \fI\,args.json\/\fR
+Use a json formatted file to parse required arguments (recommended)
+
+.SH AUTHOR
+.nf
+Tinashe Kucherera --author-email tinashedeveloper@gmail.com
+.fi
+usage: mtl [-h] [-t TRUCKERS] [-d DATE] [-l LOADS] [-p] [-e .env]
+           [-j args.json]
+
+This cli is used for making payroll calculations the <truckers> is required
+arg
+
+options:
+  -h, --help            show this help message and exit
+  -t, --truckers TRUCKERS
+                        Comma separated list of drivers:sheetname with the
+                        sheet parsed as well: driver_percentage
+  -d, --date DATE       The pay date (should be a friday)
+  -l, --loads LOADS     The name of the sheet with all the trips default is
+                        Trip Sheet
+  -p, --prompt          Prompt for the required variables interactively
+  -e, --environment .env
+                        Use an environment file to parse required arguments
+  -j, --json args.json  Use a json formatted file to parse required arguments
+                        (recommended)
