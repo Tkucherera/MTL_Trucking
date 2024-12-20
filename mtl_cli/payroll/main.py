@@ -319,14 +319,16 @@ class DriverCalculationSheet(Driver, OperatingExpenses):
 # Figure out the Pay date thing
 
 
+def pay_calc(drivers: list, trip_sheet_name: str, pay_date=None):
+    spreadsheet_id = None
+    spreadsheet_info = open('/etc/mtl/spreadsheetId', 'r')
+    spreadsheet_id = spreadsheet_info.readline().strip()
 
-
-
-def main(drivers: list, trip_sheet_name: str, pay_date=None):
-    MTL_Dispatch_Tracker_SPREADSHEET_ID = os.getenv("MTL_Dispatch_Tracker_SPREADSHEET_ID")
+    if not spreadsheet_id:
+        raise Exception("SpreadSheetId Needed (add to /etc/mtl)")
     handler = GoogleSheetsApiHandler()
 
-    sheet_dict = handler.get(MTL_Dispatch_Tracker_SPREADSHEET_ID, trip_sheet_name)
+    sheet_dict = handler.get(spreadsheet_id, trip_sheet_name)
     sheet_values = sheet_dict[trip_sheet_name]
     parser = ValuesParser(sheet_values)
 
@@ -343,7 +345,7 @@ def main(drivers: list, trip_sheet_name: str, pay_date=None):
         except Exception as e:
             raise Exception(e)
 
-        calculation_sheet_dict = handler.get(MTL_Dispatch_Tracker_SPREADSHEET_ID, sheet_name)
+        calculation_sheet_dict = handler.get(spreadsheet_id, sheet_name)
         calculation_sheet_values = calculation_sheet_dict[sheet_name]
         trucker = DriverCalculationSheet(driver, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), calculation_sheet_values)
         drivers_calculation_objects.append(trucker)
@@ -373,9 +375,7 @@ def main(drivers: list, trip_sheet_name: str, pay_date=None):
             update_data.append(
                 {"range": f'{sheet_name}!{additional_mod.cell}', "values": [[additional_mod.value]]})
 
-        sys.exit()
-
-        handler.batch_put(MTL_Dispatch_Tracker_SPREADSHEET_ID, update_data)
+        handler.batch_put(spreadsheet_id, update_data)
         write_google_doc(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"))
 
 

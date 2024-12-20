@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
 from payroll.payperiod import DeterminePayPeriod
 from payroll.messages import InvalidDateError
-from payroll.main import main
+from payroll.main import pay_calc
 
 
 def main():
@@ -137,7 +137,11 @@ def main():
     trip_sheet = args.loads
 
     if drivers:
-        main(drivers, trip_sheet, pay_date)
+        try:
+            pay_calc(drivers, trip_sheet, pay_date)
+        except Exception as error:
+            print(error)
+            sys.exit(1)
     else:
         argparser.print_help()
 
