@@ -386,5 +386,5 @@ def pay_calc(drivers: list, trip_sheet_name: str, pay_date=None):
             update_data.append(
                 {"range": f'{sheet_name}!{additional_mod.cell}', "values": [[additional_mod.value]]})
 
-        #handler.batch_put(spreadsheet_id, update_data)
-        #write_google_doc(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"))
+        handler.batch_put(spreadsheet_id, update_data)
+        write_google_doc(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"))
