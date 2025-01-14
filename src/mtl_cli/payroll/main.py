@@ -136,7 +136,9 @@ class Driver:
         # The remaining money for in business
         self.balance = round((self.balance_after_admin_fee - self.pay), 2)
 
-
+    def update_truck(self):
+        if self.trips:
+            self.truck = self.trips[0].truck_name
 
 
 class ValuesParser:
@@ -189,6 +191,7 @@ class DriverCalculationSheet(Driver, OperatingExpenses):
         self.total_income_row = self.get_total_income_row()
         self.working_column = self._working_column()
         self.modification_values = []
+        self.admin_expenses = {}
         Driver.__init__(self, name)
         OperatingExpenses.__init__(self, sheet_values, self.working_column_index)  # Probably not the best idea
 
@@ -373,6 +376,7 @@ def pay_calc(drivers: list, trip_sheet_name: str, pay_date=None):
                     raise Exception(f'Adding trip for driver {trucker.name} failed with error {e}')
 
         trucker.calculate_total()
+        trucker.update_truck()
         trucker.calculate_driver_fee(driver_percentage)
         trucker.create_modification_values()
         admin_expenses = AdminExpenses(trucker.balance)
