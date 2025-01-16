@@ -12,7 +12,7 @@ import dotenv
 import sys
 import os
 from payroll.messages import Trip
-from payroll.docs_writer import write_google_doc
+from payroll.docs_writer import write_google_doc, write_google_doc_truck_owner
 from payroll.logger import logger
 dotenv.load_dotenv()
 
@@ -136,7 +136,9 @@ class Driver:
         # The remaining money for in business
         self.balance = round((self.balance_after_admin_fee - self.pay), 2)
 
-
+    def update_truck(self):
+        if self.trips:
+            self.truck = self.trips[0].truck_name
 
 
 class ValuesParser:
@@ -189,6 +191,7 @@ class DriverCalculationSheet(Driver, OperatingExpenses):
         self.total_income_row = self.get_total_income_row()
         self.working_column = self._working_column()
         self.modification_values = []
+        self.admin_expenses = {}
         Driver.__init__(self, name)
         OperatingExpenses.__init__(self, sheet_values, self.working_column_index)  # Probably not the best idea
 
@@ -279,6 +282,8 @@ class DriverCalculationSheet(Driver, OperatingExpenses):
         # total admin fees
         self.modification_values.append(
             CellModification(row, self.working_column, f'${admin_expenses.total_admin}'))
+
+        row += 1
 
         overall_balance = round(self.balance - (self.total_expenses + admin_expenses.total_admin), 2)
         self.modification_values.append(
@@ -373,6 +378,7 @@ def pay_calc(drivers: list, trip_sheet_name: str, pay_date=None):
                     raise Exception(f'Adding trip for driver {trucker.name} failed with error {e}')
 
         trucker.calculate_total()
+        trucker.update_truck()
         trucker.calculate_driver_fee(driver_percentage)
         trucker.create_modification_values()
         admin_expenses = AdminExpenses(trucker.balance)
@@ -381,10 +387,12 @@ def pay_calc(drivers: list, trip_sheet_name: str, pay_date=None):
         update_data = []
         logger.info(f'Updating these values for trucker {trucker.name}')
         for additional_mod in trucker.modification_values:
-            print(f'{sheet_name}!{additional_mod.cell}: {additional_mod.value}')
+            # print(f'{sheet_name}!{additional_mod.cell}: {additional_mod.value}')
             logger.info(f'Updating Sheet: {sheet_name} cell  {additional_mod.cell} with value {additional_mod.value}')
             update_data.append(
                 {"range": f'{sheet_name}!{additional_mod.cell}', "values": [[additional_mod.value]]})
 
-        handler.batch_put(spreadsheet_id, update_data)
-        write_google_doc(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"))
+        # handler.batch_put(spreadsheet_id, update_data)
+        # write_google_doc(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"))
+
+        write_google_doc_truck_owner(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"), admin_expenses)

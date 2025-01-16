@@ -8,6 +8,7 @@ from pathlib import Path
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from payroll.googleapiauth import GoogleApisAuthenticate
+from payroll.logger import logger
 
 BASE_DIR = Path(__file__).parent
 
@@ -32,8 +33,10 @@ class GoogleDocsApiHandler(GoogleApisAuthenticate):
                     .execute()
             )
             print(f"file created with id: {result.get('documentId')}")
+            logger.info(f"file created with id: {result.get('documentId')}")
             return result.get('documentId')
         except HttpError as error:
+            logger.error(error)
             raise Exception(error)
 
     def batch_put(self, document_id, data: list, ):
@@ -55,6 +58,7 @@ class GoogleDocsApiHandler(GoogleApisAuthenticate):
             #print(f"{result.get('totalUpdatedCells')} cells updated.")
             return result
         except HttpError as error:
+            logger.error(error)
             raise Exception(error)
 
 
