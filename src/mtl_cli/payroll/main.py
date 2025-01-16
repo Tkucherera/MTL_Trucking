@@ -12,7 +12,7 @@ import dotenv
 import sys
 import os
 from payroll.messages import Trip
-from payroll.docs_writer import write_google_doc
+from payroll.docs_writer import write_google_doc, write_google_doc_truck_owner
 from payroll.logger import logger
 dotenv.load_dotenv()
 
@@ -283,6 +283,8 @@ class DriverCalculationSheet(Driver, OperatingExpenses):
         self.modification_values.append(
             CellModification(row, self.working_column, f'${admin_expenses.total_admin}'))
 
+        row += 1
+
         overall_balance = round(self.balance - (self.total_expenses + admin_expenses.total_admin), 2)
         self.modification_values.append(
             CellModification(row, self.working_column, f'${overall_balance}'))
@@ -385,10 +387,12 @@ def pay_calc(drivers: list, trip_sheet_name: str, pay_date=None):
         update_data = []
         logger.info(f'Updating these values for trucker {trucker.name}')
         for additional_mod in trucker.modification_values:
-            print(f'{sheet_name}!{additional_mod.cell}: {additional_mod.value}')
+            # print(f'{sheet_name}!{additional_mod.cell}: {additional_mod.value}')
             logger.info(f'Updating Sheet: {sheet_name} cell  {additional_mod.cell} with value {additional_mod.value}')
             update_data.append(
                 {"range": f'{sheet_name}!{additional_mod.cell}', "values": [[additional_mod.value]]})
 
-        handler.batch_put(spreadsheet_id, update_data)
-        write_google_doc(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"))
+        # handler.batch_put(spreadsheet_id, update_data)
+        # write_google_doc(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"))
+
+        write_google_doc_truck_owner(trucker, d.stringify_date(d.saturday_pay_date, "%m/%d/%y"), d.stringify_date(d.to_be_paid_out_date, "%m/%d/%y"), admin_expenses)

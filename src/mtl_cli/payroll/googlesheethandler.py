@@ -9,6 +9,7 @@ from pathlib import Path
 from payroll.googleapiauth import GoogleApisAuthenticate
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from payroll.logger import logger
 
 BASE_DIR = Path(__file__).parent
 
@@ -50,6 +51,7 @@ class GoogleSheetsApiHandler(GoogleApisAuthenticate):
                 return_sheets[sheet_name] = values
             return return_sheets
         except HttpError as error:
+            logger.error(error)
             print(error)
         return None
 
@@ -89,8 +91,10 @@ class GoogleSheetsApiHandler(GoogleApisAuthenticate):
                 .execute()
             )
             print(f"{result.get('updatedCells')} cells updated.")
+            logger.info(f"{result.get('updatedCells')} cells updated.")
             return result
         except HttpError as error:
+            logger.error(error)
             raise Exception(error)
 
     def batch_put(self, spreadsheet_id, data: list, value_input_option="USER_ENTERED"):
@@ -111,7 +115,9 @@ class GoogleSheetsApiHandler(GoogleApisAuthenticate):
                 .execute()
             )
             print(f"{result.get('totalUpdatedCells')} cells updated.")
+            logger.info(f"{result.get('totalUpdatedCells')} cells updated.")
             return result
         except HttpError as error:
+            logger.error(error)
             raise Exception(error)
 
