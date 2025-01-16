@@ -1,2 +1,0 @@
-[console_scripts]
-mtl = mtl_cli.mtl:main
