@@ -15,6 +15,10 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 
+from django.templatetags.static import static
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -38,6 +42,15 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
+    "unfold.contrib.filters",  # optional, if special filters are needed
+    "unfold.contrib.forms",  # optional, if special form elements are needed
+    "unfold.contrib.inlines",  # optional, if special inlines are needed
+    "unfold.contrib.import_export",  # optional, if django-import-export package is used
+    "unfold.contrib.guardian",  # optional, if django-guardian package is used
+    "unfold.contrib.simple_history",  # optional, if django-simple-history package is used
+    "unfold.contrib.location_field",  # optional, if django-location-field package is used
+    "unfold.contrib.constance",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -230,3 +243,91 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+
+
+# UNFORLD Settings
+UNFOLD = {
+    "SITE_TITLE": "Mazarura Trucking and Logistics",
+    "SITE_HEADER": "MTL Admin",
+    "SITE_SUBHEADER": "Dashboard",
+    "SITE_DROPDOWN": [
+        {
+            "icon": "diamond",
+            "title": _("Mazarura Trucking and Logistics"),
+            "link": "https://pfacha.com",
+        },
+        # ...
+    ],
+    "SITE_URL": "/",
+
+    "DASHBOARD_CALLBACK": "mtl_app.settings.dashboard_callback",
+    "ENVIRONMENT_CALLBACK": "mtl_app.settings.environment_callback",
+    "BADGE_CALLBACK": "mtl_app.settings.badge_callback",
+
+    "COLORS": {
+        "base": {
+            "50": "oklch(98.5% .002 247.839)",
+            "100": "oklch(96.7% .003 264.542)",
+            "200": "oklch(92.8% .006 264.531)",
+            "300": "oklch(87.2% .01 258.338)",
+            "400": "oklch(70.7% .022 261.325)",
+            "500": "oklch(55.1% .027 264.364)",
+            "600": "oklch(44.6% .03 256.802)",
+            "700": "oklch(37.3% .034 259.733)",
+            "800": "oklch(27.8% .033 256.848)",
+            "900": "oklch(21% .034 264.665)",
+            "950": "oklch(13% .028 261.692)",
+        },
+        "primary": {
+            "50": "oklch(97% 0.014 254.604)",
+            "100": "oklch(93.2% 0.032 255.585)",
+            "200": "oklch(88.2% 0.059 254.128)",
+            "300": "oklch(80.9% 0.105 251.813)",
+            "400": "oklch(70.7% 0.165 254.624)",
+            "500": "oklch(54.6% 0.245 262.881)",
+            "600": "oklch(54.6% 0.245 262.881)",
+            "700": "oklch(48.8% 0.243 264.376)",
+            "800": "oklch(42.4% 0.199 265.638)",
+            "900": "oklch(37.9% 0.146 265.522)",
+            "950": "oklch(28.2% 0.091 267.935)",
+        },
+        "font": {
+            "subtle-light": "var(--color-base-500)",  # text-base-500
+            "subtle-dark": "var(--color-base-400)",  # text-base-400
+            "default-light": "var(--color-base-600)",  # text-base-600
+            "default-dark": "var(--color-base-300)",  # text-base-300
+            "important-light": "var(--color-base-900)",  # text-base-900
+            "important-dark": "var(--color-base-100)",  # text-base-100
+        },
+    },
+   
+}
+
+
+def dashboard_callback(request, context):
+    """
+    Callback to prepare custom variables for index template which is used as dashboard
+    template. It can be overridden in application by creating custom admin/index.html.
+    """
+    context.update(
+        {
+            "sample": "example",  # this will be injected into templates/admin/index.html
+        }
+    )
+    return context
+
+
+def environment_callback(request):
+    """
+    Callback has to return a list of two values represeting text value and the color
+    type of the label displayed in top right corner.
+    """
+    return ["Production", "danger"] # info, danger, warning, success
+
+
+def badge_callback(request):
+    return 3
+
+def permission_callback(request):
+    return request.user.has_perm("sample_app.change_model")
