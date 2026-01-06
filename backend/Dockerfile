@@ -25,7 +25,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy project 
 COPY . /app/
 
-# RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput
 
 
 # Create media 
