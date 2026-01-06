@@ -163,7 +163,7 @@ WSGI_APPLICATION = 'mtl_app.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL', 
-            'postgresql://trucking_user:085f245119ea67f9@localhost:5433trucking_db'
+            'postgresql://trucking_user:085f245119ea67f9@localhost:5433/trucking_db'
         ),
         conn_max_age=600,
         conn_health_checks=True,
