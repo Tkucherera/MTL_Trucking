@@ -14,6 +14,8 @@ import qrcode
 import io
 import base64
 
+from django.conf import settings
+
 from django.utils import timezone
 
 from .models import Driver, Truck, Trip, RoutePoint, Document, Payroll, TripUpdate
@@ -475,6 +477,7 @@ def dashboard_callback(request, context):
                 )
             )
         ).filter(completed_trips__gt=0).order_by('-completed_trips')[:5],
+
     })
 
     return context
@@ -486,6 +489,9 @@ def environment_callback(request):
     Callback has to return a list of two values represeting text value and the color
     type of the label displayed in top right corner.
     """
+    if settings.DEBUG:
+        return ["Development", "warning"] # info, danger, warning, success
+
     return ["Production", "danger"] # info, danger, warning, success
 
 
