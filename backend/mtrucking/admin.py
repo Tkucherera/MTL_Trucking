@@ -35,3 +35,5 @@ admin.site.register(RoutePoint)
 admin.site.register(Document)
 admin.site.register(Payroll)
 admin.site.register(TripUpdate)
+
+

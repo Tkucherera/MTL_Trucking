@@ -154,7 +154,7 @@ ROOT_URLCONF = 'mtl_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -255,15 +255,15 @@ UNFOLD = {
         {
             "icon": "diamond",
             "title": _("Mazarura Trucking and Logistics"),
-            "link": "https://pfacha.com",
+            "link": "https://pfacha.com/admin",
         },
         # ...
     ],
-    "SITE_URL": "/",
+    "SITE_URL": "https://pfacha.com",
 
-    "DASHBOARD_CALLBACK": "mtl_app.settings.dashboard_callback",
-    "ENVIRONMENT_CALLBACK": "mtl_app.settings.environment_callback",
-    "BADGE_CALLBACK": "mtl_app.settings.badge_callback",
+    "DASHBOARD_CALLBACK": "mtrucking.views.dashboard_callback",
+    "ENVIRONMENT_CALLBACK": "mtrucking.views.environment_callback",
+    "BADGE_CALLBACK": "mtrucking.views.badge_callback",
 
     "COLORS": {
         "base": {
@@ -301,33 +301,71 @@ UNFOLD = {
             "important-dark": "var(--color-base-100)",  # text-base-100
         },
     },
-   
+
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Dashboard",
+                "separator": False,
+                "items": [
+                    {
+                        "title": "Overview",
+                        "icon": "dashboard",
+                        "link": lambda request: "/admin/",
+                    },
+                ],
+            },
+            {
+                "title": "Operations",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Trips",
+                        "icon": "local_shipping",
+                        "link": lambda request: "/admin/mtrucking/trip/",
+                    },
+                    {
+                        "title": "Drivers",
+                        "icon": "person",
+                        "link": lambda request: "/admin/mtrucking/driver/",
+                    },
+                    {
+                        "title": "Trucks",
+                        "icon": "directions_car",
+                        "link": lambda request: "/admin/mtrucking/truck/",
+                    },
+                ],
+            },
+            {
+                "title": "Management",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Documents",
+                        "icon": "description",
+                        "link": lambda request: "/admin/mtrucking/document/",
+                    },
+                    {
+                        "title": "Payroll",
+                        "icon": "payments",
+                        "link": lambda request: "/admin/mtrucking/payroll/",
+                    },
+                ],
+            },
+            {
+                "title": "System",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Users",
+                        "icon": "people",
+                        "link": lambda request: "/admin/mtrucking/user/",
+                    },
+                ],
+            },
+        ],
+    },
 }
 
-
-def dashboard_callback(request, context):
-    """
-    Callback to prepare custom variables for index template which is used as dashboard
-    template. It can be overridden in application by creating custom admin/index.html.
-    """
-    context.update(
-        {
-            "sample": "example",  # this will be injected into templates/admin/index.html
-        }
-    )
-    return context
-
-
-def environment_callback(request):
-    """
-    Callback has to return a list of two values represeting text value and the color
-    type of the label displayed in top right corner.
-    """
-    return ["Production", "danger"] # info, danger, warning, success
-
-
-def badge_callback(request):
-    return 3
-
-def permission_callback(request):
-    return request.user.has_perm("sample_app.change_model")

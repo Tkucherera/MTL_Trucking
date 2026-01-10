@@ -5,7 +5,7 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
@@ -13,6 +13,8 @@ import pyotp
 import qrcode
 import io
 import base64
+
+from django.utils import timezone
 
 from .models import Driver, Truck, Trip, RoutePoint, Document, Payroll, TripUpdate
 from .serializers import (
@@ -428,3 +430,67 @@ class PayrollViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(driver_id=driver_id)
         
         return queryset
+
+
+
+
+
+# Admin Site Callbacks and Custom Views
+def dashboard_callback(request, context):
+    now = timezone.now()
+    today = now.date()
+    thirty_days_ago = now - timedelta(days=30)
+    sixty_days_ago = now - timedelta(days=60)
+
+    context.update({
+        'stats': {
+            'total_drivers': Driver.objects.count(),
+            'active_drivers': Driver.objects.filter(status='ACTIVE').count(),
+            'active_trips': Trip.objects.filter(
+                status__in=['ASSIGNED', 'IN_TRANSIT']
+            ).count(),
+            'in_transit': Trip.objects.filter(status='IN_TRANSIT').count(),
+            'total_trucks': Truck.objects.count(),
+            'available_trucks': Truck.objects.filter(status='AVAILABLE').count(),
+            'in_use_trucks': Truck.objects.filter(status='IN_USE').count(),
+            'maintenance_trucks': Truck.objects.filter(status='MAINTENANCE').count(),
+            'available_trucks_percent': round(
+                (Truck.objects.filter(status='AVAILABLE').count() /
+                 max(Truck.objects.count(), 1)) * 100, 1
+            ),
+            'monthly_revenue': Trip.objects.filter(
+                status='DELIVERED',
+                actual_delivery__gte=thirty_days_ago
+            ).aggregate(total=Sum('rate'))['total'] or 0,
+        },
+        'recent_trips': Trip.objects.select_related(
+            'driver__user', 'truck'
+        ).order_by('-created_at')[:5],
+        'top_drivers': Driver.objects.annotate(
+            completed_trips=Count(
+                'trips',
+                filter=Q(
+                    trips__status='DELIVERED',
+                    trips__actual_delivery__gte=thirty_days_ago
+                )
+            )
+        ).filter(completed_trips__gt=0).order_by('-completed_trips')[:5],
+    })
+
+    return context
+
+
+
+def environment_callback(request):
+    """
+    Callback has to return a list of two values represeting text value and the color
+    type of the label displayed in top right corner.
+    """
+    return ["Production", "danger"] # info, danger, warning, success
+
+
+def badge_callback(request):
+    return 3
+
+def permission_callback(request):
+    return request.user.has_perm("sample_app.change_model")
