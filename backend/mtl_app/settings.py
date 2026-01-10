@@ -18,8 +18,7 @@ from dotenv import load_dotenv
 from django.templatetags.static import static
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-
-
+from django.utils import timezone
 # Load environment variables from .env file
 load_dotenv()
 
@@ -262,7 +261,7 @@ UNFOLD = {
     "SITE_URL": "https://pfacha.com",
 
     "DASHBOARD_CALLBACK": "mtrucking.views.dashboard_callback",
-    "ENVIRONMENT_CALLBACK": "mtrucking.views.environment_callback",
+    "ENVIRONMENT": "mtrucking.views.environment_callback",
     "BADGE_CALLBACK": "mtrucking.views.badge_callback",
 
     "COLORS": {
